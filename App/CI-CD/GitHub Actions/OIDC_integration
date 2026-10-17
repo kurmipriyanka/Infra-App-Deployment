@@ -1,0 +1,35 @@
+GitHub Official Doc Reference
+https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
+
+To add the GitHub OIDC provider to IAM, see the AWS documentation.
+
+For the provider URL: Use https://token.actions.githubusercontent.com
+For the "Audience": Use sts.amazonaws.com if you are using the official action.
+
+
+
+
+
+name: customer CI Pipeline
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write     # 🔥 REQUIRED for OIDC
+
+jobs:
+  BUILD:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4  
+        with:
+          role-to-assume: arn:aws:iam::074126659757:role/aws-github-role
+          aws-region: us-east-2
+
+      - name: Test AWS Access
+        run: aws sts get-caller-identity
